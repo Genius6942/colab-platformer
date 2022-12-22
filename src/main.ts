@@ -3,9 +3,10 @@ import { Renderer, ControlledBody, StaticBody } from 'platjs'
 // Create a renderer
 // This handles physics and rendering for you.
 const renderer = new Renderer()
+	.resize()
 	.mount(document.body)
 	.enableFixedPosition()
-	.enablePhysics({});
+	.enablePhysics({})
 
 // Create a player
 // Giving it a "color" property will make it render as that color.
