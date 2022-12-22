@@ -1,23 +1,54 @@
-import './style.css'
-import typescriptLogo from './typescript.svg'
-import { setupCounter } from './counter'
+import { Renderer, ControlledBody, StaticBody } from 'platjs'
 
-document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://www.typescriptlang.org/" target="_blank">
-      <img src="${typescriptLogo}" class="logo vanilla" alt="TypeScript logo" />
-    </a>
-    <h1>Vite + TypeScript</h1>
-    <div class="card">
-      <button id="counter" type="button"></button>
-    </div>
-    <p class="read-the-docs">
-      Click on the Vite and TypeScript logos to learn more
-    </p>
-  </div>
-`
+// Create a renderer
+// This handles physics and rendering for you.
+const renderer = new Renderer()
+	.mount(document.body)
+	.enableFixedPosition()
+	.enablePhysics({});
 
-setupCounter(document.querySelector<HTMLButtonElement>('#counter')!)
+// Create a player
+// Giving it a "color" property will make it render as that color.
+const player = new ControlledBody({
+	x: 30,
+	y: 30,
+	width: 30,
+	height: 30,
+	layer: 1,
+	color: "blue",
+});
+
+// Add the player to the renderer's list of objects to draw / update
+renderer.add(player);
+
+// enable keyboard controls
+player.bindKeyboardControls({});
+
+// lock the camera to the player (player stays at center of the screen)
+renderer.camera.lock(player);
+
+// create a body for the player to land / jump on
+renderer.add(
+	new StaticBody({ x: 0, y: 500, width: 300, height: 100, color: "black" })
+);
+
+// rendering loop
+const animationLoop = () => {
+	// update physics
+	renderer.update();
+
+	// respawn player if needed
+	if (player.y - player.height / 2 > renderer.height) {
+		player.v.y = 0;
+		player.v.x = 0;
+		player.x = 30;
+		player.y = 30;
+	}
+
+	// draw everything
+	renderer.render();
+
+	requestAnimationFrame(animationLoop);
+};
+
+requestAnimationFrame(animationLoop);
